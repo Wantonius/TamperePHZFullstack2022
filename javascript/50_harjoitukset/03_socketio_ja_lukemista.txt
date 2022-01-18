@@ -1,0 +1,11 @@
+Get to know Socket.IO with an example
+
+https://socket.io/get-started/chat
+
+Closures:
+
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures
+
+Prototype inheritance:
+
+https://javascript.info/prototype-inheritance
