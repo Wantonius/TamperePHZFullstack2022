@@ -1,5 +1,6 @@
 window.onload = function() {
 	createForm();
+	getContactList();
 }
 
 createForm = () => {
@@ -129,4 +130,90 @@ addToList = () => {
 	}).catch(error => {
 		console.log(error);
 	})
+}
+
+
+getContactList = async () => {
+	let request = {
+		method:"GET",
+		mode:"cors",
+		headers:{"Content-type":"application/json"}
+	}
+	let response = await fetch("/api/contact",request);
+	if(response.ok) {
+		let data = await response.json();
+		populateTable(data)
+	} else {
+		console.log("Failed to get contacts. Reason",response.status);
+	}
+}
+
+populateTable = (data) => {
+	let tableAnchor = document.getElementById("tableanchor");
+	let table = document.getElementById("table");
+	if(table) {
+		tableAnchor.removeChild(table);
+	}
+	let newTable = document.createElement("table");
+	newTable.setAttribute("id","table");
+	
+	//Table header
+	
+	let header = document.createElement("thead");
+	let headerRow = document.createElement("tr");
+	let firstNameHeader = document.createElement("th");
+	let firstNameText = document.createTextNode("First name");
+	firstNameHeader.appendChild(firstNameText);
+	let lastNameHeader = document.createElement("th");
+	let lastNameText = document.createTextNode("Last name");
+	lastNameHeader.appendChild(lastNameText);
+	let emailHeader = document.createElement("th");
+	let emailText = document.createTextNode("Email");
+	emailHeader.appendChild(emailText);
+	let addressHeader = document.createElement("th");
+	let addressText = document.createTextNode("Address");
+	addressHeader.appendChild(addressText);
+	let phoneHeader = document.createElement("th");
+	let phoneText = document.createTextNode("Phone");
+	phoneHeader.appendChild(phoneText);
+	let removeHeader = document.createElement("th");
+	let removeText = document.createTextNode("Remove");
+	removeHeader.appendChild(removeText);
+	headerRow.appendChild(firstNameHeader);
+	headerRow.appendChild(lastNameHeader);	
+	headerRow.appendChild(emailHeader);
+	headerRow.appendChild(addressHeader);
+	headerRow.appendChild(phoneHeader);
+	headerRow.appendChild(removeHeader);
+	header.appendChild(headerRow);
+	newTable.appendChild(header);
+	
+	//Table body
+	let body = document.createElement("tbody");
+	for(let i=0;i<data.length;i++) {
+		let tableRow = document.createElement("tr");
+		for (x in data[i]) {
+			if(x === "id") {
+				continue;
+			}
+			let column = document.createElement("td");
+			let info = document.createTextNode(data[i][x]);
+			column.appendChild(info);
+			tableRow.appendChild(column);
+		}
+		let removeColumn = document.createElement("td");
+		let removeButton = document.createElement("button");
+		let removeText = document.createTextNode("Remove");
+		removeButton.appendChild(removeText);
+		removeButton.setAttribute("name",data[i].id)
+		removeButton.addEventListener("click",function(event) {
+			//removeFromList(event.target.name)
+		})
+		removeColumn.appendChild(removeButton);
+		tableRow.appendChild(removeColumn);
+		body.appendChild(tableRow);
+	}
+	newTable.appendChild(body);
+	tableAnchor.appendChild(newTable);
+
 }
