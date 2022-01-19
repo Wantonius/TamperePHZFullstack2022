@@ -93,10 +93,40 @@ createForm = () => {
 	form.appendChild(submitButton);
 	form.addEventListener("submit",function(event) {
 		event.preventDefault();
-		//addToList()
+		addToList()
 	})
 	anchor.appendChild(form);
 	let tableAnchor = document.createElement("div");
 	tableAnchor.setAttribute("id","tableanchor");
 	anchor.appendChild(tableAnchor);
+}
+
+addToList = () => {
+	let firstname = document.getElementById("firstnameinput").value;
+	let lastname = document.getElementById("lastnameinput").value;
+	let email = document.getElementById("emailinput").value;
+	let address = document.getElementById("addressinput").value;
+	let phone = document.getElementById("phoneinput").value;
+	let contact = {
+		"firstname":firstname,
+		"lastname":lastname,
+		"email":email,
+		"address":address,
+		"phone":phone
+	}
+	let request = {
+		method:"POST",
+		mode:"cors",
+		headers:{"Content-type":"application/json"},
+		body:JSON.stringify(contact)
+	}
+	fetch("/api/contact/",request).then(response => {
+			if(response.ok) {
+				console.log("Add to list success");
+			} else {
+				console.log("Add to list failed. Reason",response.status)
+			}
+	}).catch(error => {
+		console.log(error);
+	})
 }
