@@ -6,6 +6,7 @@ window.onload = function() {
 createForm = () => {
 	let anchor = document.getElementById("anchor");
 	let form = document.createElement("form");
+	form.setAttribute("id","form");
 	
 	//First name input
 	
@@ -72,6 +73,7 @@ createForm = () => {
 	let submitButton = document.createElement("input");
 	submitButton.setAttribute("type","submit");
 	submitButton.setAttribute("value","Add");
+	submitButton.setAttribute("id","addbutton");
 	
 	//Append to form
 	
@@ -124,6 +126,7 @@ addToList = () => {
 	fetch("/api/contact/",request).then(response => {
 			if(response.ok) {
 				console.log("Add to list success");
+				getContactList();
 			} else {
 				console.log("Add to list failed. Reason",response.status)
 			}
@@ -147,6 +150,22 @@ getContactList = async () => {
 		console.log("Failed to get contacts. Reason",response.status);
 	}
 }
+
+removeFromList = async (id) => {
+	let request = {
+		method:"DELETE",
+		mode:"cors",
+		headers:{"Content-type":"application/json"}
+	}
+	let response = await fetch("/api/contact/"+id,request);
+	if(response.ok) {
+		getContactList();
+	} else {
+		console.log("Remove failed, reason",response.status);
+	}
+}
+
+
 
 populateTable = (data) => {
 	let tableAnchor = document.getElementById("tableanchor");
@@ -179,12 +198,16 @@ populateTable = (data) => {
 	let removeHeader = document.createElement("th");
 	let removeText = document.createTextNode("Remove");
 	removeHeader.appendChild(removeText);
+	let editHeader = document.createElement("th");
+	let editText = document.createTextNode("Edit");
+	editHeader.appendChild(editText);
 	headerRow.appendChild(firstNameHeader);
 	headerRow.appendChild(lastNameHeader);	
 	headerRow.appendChild(emailHeader);
 	headerRow.appendChild(addressHeader);
 	headerRow.appendChild(phoneHeader);
 	headerRow.appendChild(removeHeader);
+	headerRow.appendChild(editHeader);
 	header.appendChild(headerRow);
 	newTable.appendChild(header);
 	
@@ -207,10 +230,19 @@ populateTable = (data) => {
 		removeButton.appendChild(removeText);
 		removeButton.setAttribute("name",data[i].id)
 		removeButton.addEventListener("click",function(event) {
-			//removeFromList(event.target.name)
+			removeFromList(event.target.name)
+		})
+		let editColumn = document.createElement("td");
+		let editButton = document.createElement("button");
+		let editText = document.createTextNode("Edit");
+		editButton.appendChild(editText);
+		editButton.setAttribute("name",data[i].id)
+		editButton.addEventListener("click",function(event) {
 		})
 		removeColumn.appendChild(removeButton);
+		editColumn.appendChild(editButton);
 		tableRow.appendChild(removeColumn);
+		tableRow.appendChild(editColumn);
 		body.appendChild(tableRow);
 	}
 	newTable.appendChild(body);
