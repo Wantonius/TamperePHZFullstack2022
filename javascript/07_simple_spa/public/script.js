@@ -3,6 +3,8 @@ window.onload = function() {
 	getContactList();
 }
 
+var mode = 0;
+
 createForm = () => {
 	let anchor = document.getElementById("anchor");
 	let form = document.createElement("form");
@@ -105,27 +107,41 @@ createForm = () => {
 }
 
 addToList = () => {
-	let firstname = document.getElementById("firstnameinput").value;
-	let lastname = document.getElementById("lastnameinput").value;
-	let email = document.getElementById("emailinput").value;
-	let address = document.getElementById("addressinput").value;
-	let phone = document.getElementById("phoneinput").value;
+	let firstname = document.getElementById("firstnameinput");
+	let lastname = document.getElementById("lastnameinput");
+	let email = document.getElementById("emailinput");
+	let address = document.getElementById("addressinput");
+	let phone = document.getElementById("phoneinput");
 	let contact = {
-		"firstname":firstname,
-		"lastname":lastname,
-		"email":email,
-		"address":address,
-		"phone":phone
+		"firstname":firstname.value,
+		"lastname":lastname.value,
+		"email":email.value,
+		"address":address.value,
+		"phone":phone.value
+	}
+	let method = "POST";
+	let url = "/api/contact"
+	if(mode) {
+		method = "PUT";
+		url = "/api/contact/"+mode;
+		mode = 0;
+		submitButton = document.getElementById("addbutton");
+		submitButton.value = "Add";
 	}
 	let request = {
-		method:"POST",
+		method:method,
 		mode:"cors",
 		headers:{"Content-type":"application/json"},
 		body:JSON.stringify(contact)
 	}
-	fetch("/api/contact/",request).then(response => {
+	fetch(url,request).then(response => {
 			if(response.ok) {
 				console.log("Add to list success");
+				firstname.value = "";
+				lastname.value = "";
+				email.value = "";
+				address.value = "";
+				phone.value = "";
 				getContactList();
 			} else {
 				console.log("Add to list failed. Reason",response.status)
@@ -165,6 +181,21 @@ removeFromList = async (id) => {
 	}
 }
 
+changeToEditMode = (contact) => {
+	mode = contact._id;
+	let firstname = document.getElementById("firstnameinput");
+	let lastname = document.getElementById("lastnameinput");
+	let email = document.getElementById("emailinput");
+	let address = document.getElementById("addressinput");
+	let phone = document.getElementById("phoneinput");
+	let submitButton = document.getElementById("addbutton");
+	firstname.value = contact.firstname;
+	lastname.value = contact.lastname;
+	email.value = contact.email;
+	address.value = contact.address;
+	phone.value = contact.phone;
+	submitButton.value = "Edit";
+}
 
 
 populateTable = (data) => {
@@ -216,7 +247,7 @@ populateTable = (data) => {
 	for(let i=0;i<data.length;i++) {
 		let tableRow = document.createElement("tr");
 		for (x in data[i]) {
-			if(x === "id") {
+			if(x === "_id" || x === "__v") {
 				continue;
 			}
 			let column = document.createElement("td");
@@ -228,7 +259,7 @@ populateTable = (data) => {
 		let removeButton = document.createElement("button");
 		let removeText = document.createTextNode("Remove");
 		removeButton.appendChild(removeText);
-		removeButton.setAttribute("name",data[i].id)
+		removeButton.setAttribute("name",data[i]._id)
 		removeButton.addEventListener("click",function(event) {
 			removeFromList(event.target.name)
 		})
@@ -238,6 +269,7 @@ populateTable = (data) => {
 		editButton.appendChild(editText);
 		editButton.setAttribute("name",data[i].id)
 		editButton.addEventListener("click",function(event) {
+			changeToEditMode(data[i]);
 		})
 		removeColumn.appendChild(removeButton);
 		editColumn.appendChild(editButton);

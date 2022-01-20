@@ -1,4 +1,6 @@
 const express = require("express");
+const mongoose = require("mongoose");
+const contactModel = require("./contact");
 
 const app = express();
 
@@ -9,51 +11,68 @@ app.use(express.json());
 
 //DATABASE
 
-let database = [];
-let id = 100;
+const mongo_user = process.env.MONGOCLOUD_USER;
+const mongo_password = process.env.MONGOCLOUD_PASSWORD;
+const mongo_url = process.env.MONGOCLOUD_URL;
+
+mongoose.connect("mongodb+srv://"+mongo_user+":"+mongo_password+"@"+mongo_url+"/contactstest?retryWrites=true&w=majority").then(
+	() => console.log("Connected to mongoDB"),
+	(error) => console.log("Failed to connect to mongoDB. Reason",error)
+)
+
 
 app.get("/api/contact",function(req,res) {
-	return res.status(200).json(database);
+	contactModel.find({},function(err,contacts) {
+		if(err) {
+			console.log(err);
+			return res.status(500).json({"message":"internal server error"})
+		}
+		return res.status(200).json(contacts);
+	})
 })
 
 app.post("/api/contact", function(req,res) {
-	console.log(req.body);
-	let contact = {
+	let contact = new contactModel({
 		"firstname":req.body.firstname,
 		"lastname":req.body.lastname,
 		"email":req.body.email,
 		"address":req.body.address,
 		"phone":req.body.phone,
-		"id":id
-	}
-	id++;
-	database.push(contact);
-	res.status(201).json({"message":"created"});
+	})
+	contact.save(function(err) {
+		if(err) {
+			console.log(err);
+			return res.status(500).json({"message":"Internal server error"})
+		}
+		return res.status(201).json({"message":"created"})
+	})
 })
 
 app.delete("/api/contact/:id",function(req,res) {
-	let tempId = parseInt(req.params.id,10);
-	database = database.filter(item => item.id !== tempId);
-	res.status(200).json({"message":"success"});
+	contactModel.deleteOne({"_id":req.params.id},function(err) {
+		if(err) {
+			console.log(err);
+			return res.status(500).json({"message":"Internal Server Error"})
+		}
+		return res.status(200).json({"message":"success"})
+	});
 })
 
 app.put("/api/contact/:id", function(req,res) {
-	let tempId = parseInt(req.params.id,10);
 	let contact = {
 		"firstname":req.body.firstname,
 		"lastname":req.body.lastname,
 		"email":req.body.email,
 		"address":req.body.address,
 		"phone":req.body.phone,
-		"id":tempId
 	}
-	for(let i=0;i<database.length;i++) {
-		if(tempId === database[i].id) {
-			database.splice(i,1,contact);
-			return res.status(200).json({"message":"success"})
+	contactModel.replaceOne({"_id":req.params.id},contact,function(err) {
+		if(err) {
+			console.log(err);
+			return res.status(500).json({"message":"Internal server error"})
 		}
-	}
-	return res.status(404).json({"message":"not found"});
+		return res.status(200).json({"message":"success"})
+	})
 });
 
 app.listen(port);
