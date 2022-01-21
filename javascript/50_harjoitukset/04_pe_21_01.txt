@@ -1,0 +1,28 @@
+Friday (and beyond if needed) javascript projects:
+
+Use Single-Page App-principle in all these projects (only the "anchor" on the actual index.html)
+
+1.ToDo app
+		Simple ToDo app. ToDos have description and state. States are atleast "pending" and "done" and they are both displayed in their own tables. Optionally
+		todos can have a deadline thus adding a state "late". Adding new todos is obviously done with a form. Done todos are not removed but instead are moved
+		to a different table to be displayed. They can be removed from there. Load all todos at the same time and use array.prototype.filter in the frontend 
+		to create "pending" and "done"-arrays for each table.
+		
+		You can start by using just an array in the backend for database and then move on to mongodb and mongoose when the front works. Like we did with
+		the example.
+		
+2. Copygram
+		Copygram-app. We display images with descriptions. Image location (/public/images/<image_name>.jpg f.ex.) is stored in database along
+		with the description and other useful information. Use <img> tags for each image loaded like this. The src is the location given by
+		the database. Create an "instagram"-like box for the image and description. Every image gets one. 
+		
+		Start with already existing images you have downloaded from internet. Uploading new images is a bit more complicated process 
+		but can be done with a library called Multer which works with Express. This is an optional part if you wish to challenge yourself.
+		
+		Multer:
+		https://www.npmjs.com/package/multer
+		
+		How to use Multer:
+		https://stackabuse.com/handling-file-uploads-in-node-js-with-expres-and-multer/
+		
+		(There is a sort of example how to display images using <img> in that Multer intro)
