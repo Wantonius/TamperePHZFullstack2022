@@ -41,13 +41,27 @@ function App() {
 					getList();
 					return;
 				}
+				if(urlRequest.action === "removeitem") {
+					getList();
+					return;
+				}
+				if(urlRequest.action === "edititem") {
+					getList();
+					return;
+				}
 			} else {
 				if(urlRequest.action === "getlist") {
 					console.log("Server responded with a status",response.status)
 				}
 				if(urlRequest.action === "additem") {
 					console.log("Server responded with a status",response.status)
-				}			
+				}
+				if(urlRequest.action === "removeitem") {
+					console.log("Server responded with a status",response.status)
+				}
+				if(urlRequest.action === "edititem") {
+					console.log("Server responded with a status",response.status)
+				}
 			}
 		}
 		
@@ -79,12 +93,37 @@ function App() {
 		})
 	}
 	
+	const removeFromList = (id) => {
+		setUrlRequest({
+			url:"/api/shopping/"+id,
+			request:{
+				method:"DELETE",
+				mode:"cors",
+				headers:{"Content-type":"application/json"}
+			},
+			action:"removeitem"
+		})
+	}
+	
+	const editItem = (item) => {
+		setUrlRequest({
+			url:"/api/shopping/"+item.id,
+			request:{
+				method:"PUT",
+				mode:"cors",
+				headers:{"Content-type":"application/json"},
+				body:JSON.stringify(item)
+			},
+			action:"edititem"
+		})
+	}
+	
 	return (
 		<div className="App">
 			<Navbar/>
 			<hr/>
 			<Routes>
-				<Route exact path="/" element={<ShoppingList list={state.list}/>}/>
+				<Route exact path="/" element={<ShoppingList list={state.list} removeFromList={removeFromList} editItem={editItem}/>}/>
 				<Route path="/form" element={<ShoppingForm addToList={addToList}/>}/>
 			</Routes>
 		</div>
