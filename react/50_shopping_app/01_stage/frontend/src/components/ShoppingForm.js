@@ -18,6 +18,9 @@ const ShoppingForm = (props) => {
 	
 	const onSubmit = (event) => {
 		event.preventDefault();
+		if(!state.type) {
+			return;
+		}
 		let item = {
 			...state
 		}

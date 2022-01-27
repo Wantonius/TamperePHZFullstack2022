@@ -25,7 +25,7 @@ app.post("/api/shopping",function(req,res) {
 	if(!req.body) {
 		return res.status(400).json({message:"Bad request"});
 	}
-	if(!req.body.type || !req.body.count || !req.body.price) {
+	if(!req.body.type) {
 		return res.status(400).json({message:"Bad request"});
 	}
 	let item = {
@@ -52,7 +52,7 @@ app.put("/api/shopping/:id",function(req,res) {
 	if(!req.body) {
 		return res.status(400).json({message:"Bad request"});
 	}
-	if(!req.body.type || !req.body.count || !req.body.price) {
+	if(!req.body.type) {
 		return res.status(400).json({message:"Bad request"});
 	}
 	let tempId = parseInt(req.params.id,10);
