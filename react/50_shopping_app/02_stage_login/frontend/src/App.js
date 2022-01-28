@@ -15,7 +15,11 @@ function App() {
 	});
 
 	const [state,setState] = useState({
-		list:[]
+		list:[],
+		isLogged:false,
+		token:"",
+		loading:false,
+		error:""
 	});
 	
 	useEffect(() => {
@@ -28,11 +32,15 @@ function App() {
 		}
 		
 		const fetchData = async () => {
+			setError("");
+			setLoading(true);
 			const response = await fetch(urlRequest.url,urlRequest.request);
+			setLoading(false);
 			if(response.ok) {
 				if(urlRequest.action === "getlist") {
 					const data = await response.json();
 					setState({
+						...state,
 						list:data
 					})
 					return;
@@ -49,32 +57,114 @@ function App() {
 					getList();
 					return;
 				}
+				if(urlRequest.action === "register") {
+					setError("Register success!");
+					return;
+				}
+				if(urlRequest.action === "login") {
+					let data = await response.json();
+					setState({
+						...state,
+						isLogged:true,
+						token:data.token
+					})
+					getList(data.token);
+				}
+				if(urlRequest.action === "logout") {
+					clearState();
+					return;
+				}
 			} else {
 				if(urlRequest.action === "getlist") {
-					console.log("Server responded with a status",response.status)
+					if(response.status === 403) {
+						clearState();
+						setError("Session has expired. Logging you out!");
+						return;
+					}
+					setError("Server responded with a status "+response.statusText)
 				}
 				if(urlRequest.action === "additem") {
-					console.log("Server responded with a status",response.status)
+					if(response.status === 403) {
+						clearState();
+						setError("Session has expired. Logging you out!");
+						return;
+					}
+					setError("Server responded with a status "+response.statusText)
 				}
 				if(urlRequest.action === "removeitem") {
-					console.log("Server responded with a status",response.status)
+					if(response.status === 403) {
+						clearState();
+						setError("Session has expired. Logging you out!");
+						return;
+					}
+					setError("Server responded with a status "+response.statusText)
 				}
 				if(urlRequest.action === "edititem") {
-					console.log("Server responded with a status",response.status)
+					if(response.status === 403) {
+						clearState();
+						setError("Session has expired. Logging you out!");
+						return;
+					}
+					setError("Server responded with a status "+response.statusText)
+				}
+				if(urlRequest.action === "register") {
+					if(response.status === 409) {
+						setError("Username already in use");
+						return;
+					}
+					setError("Server responded with a status "+response.statusText)
+				}
+				if(urlRequest.action === "login") {
+					setError("Server responded with a status "+response.statusText)
+				}
+				if(urlRequest.action === "logout") {
+					clearState();
+					setError("Server responded with an error. Logging you out!");
 				}
 			}
 		}
 		
 		fetchData();
 	},[urlRequest]);
+	// HELPERS
 	
-	const getList = () => {
+	const clearState = () => {
+		setState({
+			list:[],
+			isLogged:false,
+			loading:false,
+			error:"",
+			token:""
+		})
+	}
+	
+	const setError = (error) => {
+		setState({
+			...state,
+			error:error
+		})
+	}
+	
+	const setLoading = (loading) => {
+		setState({
+			...state,
+			loading:loading
+		})
+	}
+	
+	//REST API
+	const getList = (token) => {
+		let temp = state.token;
+		if(token) {
+			temp = token;
+		}
 		setUrlRequest({
 			url:"/api/shopping",
 			request:{
 				method:"GET",
 				mode:"cors",
-				headers:{"Content-type":"application/json"}
+				headers:{"Content-type":"application/json",
+						"token":temp}
 			},
 			action:"getlist"		
 		})
@@ -86,7 +176,8 @@ function App() {
 			request:{
 				method:"POST",
 				mode:"cors",
-				headers:{"Content-type":"application/json"},
+				headers:{"Content-type":"application/json",
+					"token":state.token},
 				body:JSON.stringify(item)
 			},
 			action:"additem"
@@ -99,7 +190,8 @@ function App() {
 			request:{
 				method:"DELETE",
 				mode:"cors",
-				headers:{"Content-type":"application/json"}
+				headers:{"Content-type":"application/json",
+					"token":state.token}
 			},
 			action:"removeitem"
 		})
@@ -111,13 +203,52 @@ function App() {
 			request:{
 				method:"PUT",
 				mode:"cors",
-				headers:{"Content-type":"application/json"},
+				headers:{"Content-type":"application/json"
+					"token":state.token},
 				body:JSON.stringify(item)
 			},
 			action:"edititem"
 		})
 	}
 	
+	const register = (user) => {
+		setUrlRequest({
+			url:"/register",
+			request:{
+				method:"POST",
+				mode:"cors",
+				headers:{"Content-type":"application/json"},
+				body:JSON.stringify(user)
+			},
+			action:"register"
+		})
+	}
+
+	const login = (user) => {
+		setUrlRequest({
+			url:"/login",
+			request:{
+				method:"POST",
+				mode:"cors",
+				headers:{"Content-type":"application/json"},
+				body:JSON.stringify(user)
+			},
+			action:"login"
+		})
+	}
+
+	const logout = (user) => {
+		setUrlRequest({
+			url:"/logout",
+			request:{
+				method:"POST",
+				mode:"cors",
+				headers:{"Content-type":"application/json",
+						"token":state.token}
+			},
+			action:"logout"
+		})
+	}	
 	return (
 		<div className="App">
 			<Navbar/>
