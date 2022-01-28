@@ -1,10 +1,10 @@
-import {Routes,Route} from 'react-router-dom';
+import {Routes,Route,Navigate} from 'react-router-dom';
 import {useState,useEffect} from 'react';
 import './App.css';
 import ShoppingForm from './components/ShoppingForm';
 import ShoppingList from './components/ShoppingList';
 import Navbar from './components/Navbar';
-
+import LoginPage from './components/LoginPage';
 
 function App() {
 
@@ -22,9 +22,6 @@ function App() {
 		error:""
 	});
 	
-	useEffect(() => {
-		getList();
-	},[])
 	
 	useEffect(() => {
 		if(urlRequest.url === "") {
@@ -203,7 +200,7 @@ function App() {
 			request:{
 				method:"PUT",
 				mode:"cors",
-				headers:{"Content-type":"application/json"
+				headers:{"Content-type":"application/json",
 					"token":state.token},
 				body:JSON.stringify(item)
 			},
@@ -248,15 +245,24 @@ function App() {
 			},
 			action:"logout"
 		})
-	}	
-	return (
-		<div className="App">
-			<Navbar/>
-			<hr/>
-			<Routes>
+	}
+	
+	let tempRender = <Routes>
+					<Route exact path="/" element={<LoginPage register={register} login={login} setError={setError}/>}/>
+					<Route path="*" element={<Navigate to="/"/>}/>
+					</Routes>
+	if(state.isLogged) {
+		tempRender = <Routes>
 				<Route exact path="/" element={<ShoppingList list={state.list} removeFromList={removeFromList} editItem={editItem}/>}/>
 				<Route path="/form" element={<ShoppingForm addToList={addToList}/>}/>
+				<Route path="*" element={<Navigate to="/"/>}/>
 			</Routes>
+	}
+	return (
+		<div className="App">
+			<Navbar error={state.error} loading={state.loading} isLogged={state.isLogged} logout={logout}/>
+			<hr/>
+			{tempRender}
 		</div>
   );
 }

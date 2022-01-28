@@ -55,6 +55,7 @@ router.put("/shopping/:id",function(req,res) {
 	let tempId = parseInt(req.params.id,10);
 	let item = {
 		...req.body,
+		user:req.session.user,
 		id:tempId
 	}
 	for(let i=0;i<database.length;i++) {

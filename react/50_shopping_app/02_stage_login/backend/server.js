@@ -26,7 +26,7 @@ isUserLogged = (req,res,next) => {
 	if(!req.headers.token) {
 		return res.status(403).json({message:"Forbidden 1"});
 	}
-	for(let i=0;loggedSessions.length;i++) {
+	for(let i=0;i<loggedSessions.length;i++) {
 		if(req.headers.token === loggedSessions[i].token) {
 			let now = Date.now();
 			if(now > loggedSessions[i].ttl) {
