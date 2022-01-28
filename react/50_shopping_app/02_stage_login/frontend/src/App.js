@@ -63,7 +63,8 @@ function App() {
 					setState({
 						...state,
 						isLogged:true,
-						token:data.token
+						token:data.token,
+						error:""
 					})
 					getList(data.token);
 				}
@@ -136,16 +137,21 @@ function App() {
 	}
 	
 	const setError = (error) => {
-		setState({
+		setState((state) => {
+		return {
 			...state,
 			error:error
+			}
 		})
 	}
 	
 	const setLoading = (loading) => {
-		setState({
+		setState((state) => {
+		return {
 			...state,
+			error:"",
 			loading:loading
+		}
 		})
 	}
 	
