@@ -1,17 +1,19 @@
 const express = require("express");
+const itemModel = require("../models/item");
 
 let router = express.Router();
-
-//DATABASE
-
-let database = [];
-let id = 100;
 
 //REST API
 
 router.get("/shopping",function(req,res) {
-	let tempDatabase = database.filter(item => item.user === req.session.user)
-	return res.status(200).json(tempDatabase);
+	let query = {"user":req.session.user}
+	itemModel.find(query,function(err,items) {
+		if(err) {
+			console.log("Failed to find items. Reason",err);
+			return res.status(500).json({message:"Internal Server Error"})
+		}
+		return res.status(200).json(items);
+	})
 });
 
 router.post("/shopping",function(req,res) {
@@ -21,28 +23,29 @@ router.post("/shopping",function(req,res) {
 	if(!req.body.type) {
 		return res.status(400).json({message:"Bad request"});
 	}
-	let item = {
-		...req.body,
+	let item = new itemModel({
+		type:req.body.type.toLowerCase(),
+		count:req.body.count,
+		price:req.body.price,
 		user:req.session.user,
-		id:id
-	}
-	id++;
-	database.push(item);
-	return res.status(201).json({message:"created"});
+	})
+	item.save(function(err) {
+		if(err) {
+			console.log("Failed to create item. Reason",err);
+			return res.status(500).json({message:"Internal Server Error"})
+		}
+		return res.status(201).json({message:"Created"})
+	})
 });
 
 router.delete("/shopping/:id",function(req,res) {
-	let tempId = parseInt(req.params.id,10);
-	for(let i=0;i<database.length;i++) {
-		if(database[i].id === tempId) {
-			if(database[i].user !== req.session.user) {
-				return res.status(401).json({message:"You are not authorized to remove this item"})
-			}
-			database.splice(i,1);
-			return res.status(200).json({message:"success"})
+	itemModel.deleteOne({"_id":req.params.id,"user":req.session.user}, function(err) {
+		if(err) {
+			console.log("Failed to delete item "+req.params.id+". Reason",err);
+			return res.status(500).json({message:"Internal Server Error"})
 		}
-	}
-	return res.status(404).json({message:"not found"})
+		return res.status(200).json({message:"success!"});
+	})
 });
 
 router.put("/shopping/:id",function(req,res) {
@@ -52,22 +55,19 @@ router.put("/shopping/:id",function(req,res) {
 	if(!req.body.type) {
 		return res.status(400).json({message:"Bad request"});
 	}
-	let tempId = parseInt(req.params.id,10);
 	let item = {
-		...req.body,
 		user:req.session.user,
-		id:tempId
+		type:req.body.type.toLowerCase(),
+		count:req.body.count,
+		price:req.body.price
 	}
-	for(let i=0;i<database.length;i++) {
-		if(database[i].id === tempId) {
-			if(database[i].user !== req.session.user) {
-				return res.status(401).json({message:"You are not authorized to edit this item"})
-			}
-			database.splice(i,1,item);
-			return res.status(200).json({message:"success"})
+	itemModel.replaceOne({"_id":req.params.id,"user":req.session.user},item,function(err) {
+		if(err) {
+			console.log("Failed to update item "+req.params.id+". Reason",err);
+			return res.status(500).json({message:"Internal Server Error"})
 		}
-	}
-	return res.status(404).json({message:"not found"})
+		return res.status(200).json({message:"success"})
+	})
 })
 
 module.exports = router;

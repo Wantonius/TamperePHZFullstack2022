@@ -23,8 +23,8 @@ mongoose.connect("mongodb+srv://"+mongo_user+":"+mongo_password+"@"+mongo_url+"/
 	(error) => console.log("Failed to connect to MongoDB. Reason",error)
 );
 
-let registeredUsers = [];
-let loggedSessions = [];
+mongoose.set("toJSON",{virtuals:true});
+
 let time_to_live_diff = 3600000;
 
 //MIDDLEWARE
@@ -38,20 +38,34 @@ isUserLogged = (req,res,next) => {
 	if(!req.headers.token) {
 		return res.status(403).json({message:"Forbidden 1"});
 	}
-	for(let i=0;i<loggedSessions.length;i++) {
-		if(req.headers.token === loggedSessions[i].token) {
-			let now = Date.now();
-			if(now > loggedSessions[i].ttl) {
-				loggedSessions.splice(i,1);
-				return res.status(403).json({message:"Forbidden 2"})
-			}
-			loggedSessions[i].ttl = now + time_to_live_diff;
-			req.session = {};
-			req.session.user = loggedSessions[i].user;
-			return next();
+	sessionModel.findOne({"token":req.headers.token}, function(err,session) {
+		if(err) {
+			console.log("Failed to find session. Reason",err);
+			return res.status(403).json({message:"Forbidden 2"});
 		}
-	}
-	return res.status(403).json({message:"Forbidden 3"})
+		if(!session) {
+			return res.status(403).json({message:"Forbidden 3"});
+		}
+		let now = Date.now();
+		if(now > session.ttl) {
+			sessionModel.deleteOne({"_id":session._id},function(err){
+				if(err) {
+					console.log("Failed to remove expired session. Reason",err);
+				}
+				return res.status(403).json({message:"Forbidden 4"});
+			})
+		} else {
+			req.session = {};
+			req.session.user = session.user;
+			session.ttl = now + time_to_live_diff;
+			session.save(function(err) {
+				if(err) {
+					console.log("Failed to resave session. Reason",err)
+				}
+				return next();
+			})
+		}
+	})
 }
 
 //LOGIN API
@@ -138,13 +152,13 @@ app.post("/logout",function(req,res) {
 	if(!req.headers.token) {
 		return res.status(404).json({message:"Not found"})
 	}
-	for(let i=0;i<loggedSessions.length;i++) {
-		if(req.headers.token === loggedSessions[i].token) {
-			loggedSessions.splice(i,1);
-			return res.status(200).json({message:"Logged out!"})
+	sessionModel.deleteOne({"token":req.headers.token},function(err,results) {
+		if(err) {
+			console.log("Failed to remove session in logout. Reason",err);
 		}
-	}
-	return res.status(404).json({message:"Not found"})
+		console.log(results);
+		return res.status(200).json({message:"Logged out"});
+	})
 })
 
 app.use("/api",isUserLogged,apiroute);
