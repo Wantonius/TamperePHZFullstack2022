@@ -1,0 +1,21 @@
+Seuraavat kolme viikkoa-kalenterirakenne /
+Next three weeks calendar structure
+
+Ma - Ke / Mon - Wed
+Normaalia opetusta etänä
+Normal studies remotely
+
+To / Thu
+Projektipäivä / itsenäinen opiskelu
+Project day / self studies
+
+Pe / Fri
+Aamu: Projektien läpikäynti. Jokainen käyttää 2-5 min kertomaan
+mitä on tehnyt viikolla.
+Morning: Project statuses. Everyone takes 2-5 mins to explain
+what they have done this week.
+Iltapäivä: Optionaalinen apu/kertaus. Kysymyksiä vapaasti tai
+voi myös varata erillisen pätkän jonkun suuremman koodiongelman
+ja/tai projektin selvittelyyn.
+Afternoon: Optional refresher. You can freely ask questions or
+reserve some time for help in some bigger coding problem and/or project work.

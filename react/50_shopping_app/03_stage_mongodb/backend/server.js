@@ -3,6 +3,8 @@ const apiroute = require("./routes/apiroute");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const mongoose = require("mongoose");
+const userModel = require("./models/user");
+const sessionModel = require("./models/session");
 
 let app = express();
 
@@ -64,22 +66,27 @@ app.post("/register",function(req,res) {
 	if(req.body.username.length < 4 || req.body.password.length < 8) {
 		return res.status(400).json({message:"Bad request"});
 	}
-	for(let i=0;i<registeredUsers.length;i++) {
-		if(req.body.username === registeredUsers[i].username) {
-			return res.status(409).json({message:"Username is already in use"});
-		}
-	}
 	bcrypt.hash(req.body.password,14,function(err,hash) {
 		if(err) {
 			return res.status(400).json({message:"Bad request"})
 		}
-		let user = {
+		let user = new userModel({
 			username:req.body.username,
 			password:hash
-		}
-		registeredUsers.push(user);
-		console.log(registeredUsers);
-		return res.status(201).json({message:"User created"});
+		})
+		user.save(function(err,user) {
+			if(err) {
+				console.log("Failed to create new user. Reason",err);
+				if(err.code === 11000) {
+					return res.status(409).json({message:"Username already in use"})
+				}
+				return res.status(500).json({message:"Internal server error"})
+			}
+			if(!user) {
+				return res.status(500).json({message:"Internal server error"})
+			}
+			return res.status(201).json({message:"User registered"});
+		})
 	})
 })
 
@@ -93,29 +100,38 @@ app.post("/login",function(req,res) {
 	if(req.body.username.length < 4 || req.body.password.length < 8) {
 		return res.status(400).json({message:"Bad request"});
 	}
-	for(let i=0;i<registeredUsers.length;i++) {
-		if(registeredUsers[i].username === req.body.username) {
-			bcrypt.compare(req.body.password,registeredUsers[i].password,function(err,success) {
-				if(err) {
-					return res.status(400).json({message:"Bad request"})
-				}
-				if(!success) {
-					return res.status(401).json({message:"Unauthorized"})
-				}
-				let token = createToken();
-				let now = Date.now();
-				let session = {
-					user:req.body.username,
-					ttl:now+time_to_live_diff,
-					token:token
-				}
-				loggedSessions.push(session);
-				return res.status(200).json({token:token})
-			})
-			return;
+	userModel.findOne({"username":req.body.username},function(err,user){
+		if(err) {
+			console.log("Failed to find user. Reason",err);
+			return res.status(500).json({message:"Internal Server Error"})
 		}
-	}
-	return res.status(401).json({message:"Unauthorized"})
+		if(!user) {
+			return res.status(401).json({message:"Unauthorized"})
+		}
+		bcrypt.compare(req.body.password,user.password,function(err,success){
+			if(err) {
+				console.log("Comparing passwords failed. Reason",err);
+				return res.status(500).json({message:"Internal server error"})
+			}
+			if(!success) {
+				return res.status(401).json({message:"Unauthorized"})
+			}
+			let token = createToken();
+			let now = Date.now();
+			let session = new sessionModel({
+				user:req.body.username,
+				ttl:now + time_to_live_diff,
+				token:token
+			})
+			session.save(function(err) {
+				if(err) {
+					console.log("Saving session failed. Reason",err);
+					return res.status(500).json({message:"Internal server error"})
+				}
+				return res.status(200).json({token:token});
+			})
+		})
+	})
 })
 
 app.post("/logout",function(req,res) {
