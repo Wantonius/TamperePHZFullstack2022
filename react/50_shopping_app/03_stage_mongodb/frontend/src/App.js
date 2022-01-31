@@ -22,6 +22,16 @@ function App() {
 		error:""
 	});
 	
+	useEffect(() => {
+		if(sessionStorage.getItem("state")) {
+			let state = JSON.parse(sessionStorage.getItem("state"));
+			setState(state);
+		}
+	}, [])
+	
+	useEffect(() => {
+		sessionStorage.setItem("state",JSON.stringify(state));
+	},[state.list,state.isLogged,state.token])
 	
 	useEffect(() => {
 		if(urlRequest.url === "") {
@@ -156,13 +166,24 @@ function App() {
 	}
 	
 	//REST API
-	const getList = (token) => {
+	const getList = (token,search,price) => {
 		let temp = state.token;
 		if(token) {
 			temp = token;
 		}
+		let url = "/api/shopping"
+		if(search) {
+			url = url + "?type="+search
+			if(price) {
+				url = url + "&price="+price
+			}
+		} else {
+			if(price) {
+				url = url + "?price="+price
+			}
+		}
 		setUrlRequest({
-			url:"/api/shopping",
+			url:url,
 			request:{
 				method:"GET",
 				mode:"cors",
@@ -259,7 +280,7 @@ function App() {
 					</Routes>
 	if(state.isLogged) {
 		tempRender = <Routes>
-				<Route exact path="/" element={<ShoppingList list={state.list} removeFromList={removeFromList} editItem={editItem}/>}/>
+				<Route exact path="/" element={<ShoppingList list={state.list} removeFromList={removeFromList} editItem={editItem} getList={getList}/>}/>
 				<Route path="/form" element={<ShoppingForm addToList={addToList}/>}/>
 				<Route path="*" element={<Navigate to="/"/>}/>
 			</Routes>

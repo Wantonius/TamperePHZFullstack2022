@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {Table} from 'semantic-ui-react';
+import {Table,Button} from 'semantic-ui-react';
 import Row from './Row';
 import RemoveRow from './RemoveRow';
 import EditRow from './EditRow';
@@ -10,6 +10,28 @@ const ShoppingList = (props) => {
 		removeIndex:-1,
 		editIndex:-1
 	})
+	
+	const [search,setSearch] = useState({
+		type:"",
+		price:0
+	})
+	
+	const searchByType = () => {
+		props.getList("",search.type,search.price);
+		setSearch({
+			type:"",
+			price:0
+		})
+	}
+	
+	const onChange = (event) => {
+		setSearch(state => {
+			return {
+				...state,
+				[event.target.name]:event.target.value
+			}
+		})
+	}
 	
 	const changeToRemoveMode = (index) => {
 		setState({
@@ -60,6 +82,20 @@ const ShoppingList = (props) => {
 		)
 	})
 	return(
+	<div>
+		<label htmlFor="type">Search by type:</label>
+		<input type="text"	
+				name="type"
+				id="type"
+				onChange={onChange}
+				value={search.type}/>
+		<label htmlFor="price">Costing maximum of:</label>
+		<input type="number"
+				name="price"
+				id="price"
+				onChange={onChange}
+				value={search.price}/>
+		<Button onClick={searchByType} style={{marginLeft:10}}>Search</Button>
 		<Table striped>
 			<Table.Header>
 				<Table.Row>
@@ -74,6 +110,7 @@ const ShoppingList = (props) => {
 			{items}
 			</Table.Body>
 		</Table>
+	</div>
 	)
 }
 export default ShoppingList;

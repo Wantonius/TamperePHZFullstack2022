@@ -7,6 +7,12 @@ let router = express.Router();
 
 router.get("/shopping",function(req,res) {
 	let query = {"user":req.session.user}
+	if(req.query.type) {
+		query["type"] = req.query.type
+	}
+	if(req.query.price) {
+		query["price"] ={"$lte":req.query.price}
+	}
 	itemModel.find(query,function(err,items) {
 		if(err) {
 			console.log("Failed to find items. Reason",err);
