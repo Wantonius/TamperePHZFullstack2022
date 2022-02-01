@@ -40,8 +40,6 @@ db.all(CREATE_SESSIONS, (err) => {
 	console.log("Created table sessions if did not exist");
 })
 
-let registeredUsers = [];
-let loggedSessions = [];
 let time_to_live_diff = 3600000;
 
 //MIDDLEWARE
@@ -55,20 +53,36 @@ isUserLogged = (req,res,next) => {
 	if(!req.headers.token) {
 		return res.status(403).json({message:"Forbidden 1"});
 	}
-	for(let i=0;i<loggedSessions.length;i++) {
-		if(req.headers.token === loggedSessions[i].token) {
-			let now = Date.now();
-			if(now > loggedSessions[i].ttl) {
-				loggedSessions.splice(i,1);
-				return res.status(403).json({message:"Forbidden 2"})
-			}
-			loggedSessions[i].ttl = now + time_to_live_diff;
-			req.session = {};
-			req.session.user = loggedSessions[i].user;
-			return next();
+	let SQL = "SELECT * from sessions WHERE token=?";
+	db.get(SQL,[req.headers.token],function(err,session) {
+		if(err) {
+			return res.status(500).json({message:"Internal Server Error"})
 		}
-	}
-	return res.status(403).json({message:"Forbidden 3"})
+		if(!session) {
+			return res.status(403).json({message:"Forbidden 2"});
+		}
+		let now = Date.now();
+		if(now > session.ttl) {
+			SQL = "DELETE FROM sessions WHERE token = ?"
+			db.run(SQL,[req.headers.token],function(err) {
+				if(err) {
+					console.log("Failed to remove session. Reason",err)
+				}
+				return res.status(403).json({message:"Forbidden 3"})
+			})
+		} else {
+			let ttl = now + time_to_live_diff;
+			req.session = {};
+			req.session.user = session.user;
+			SQL = "UPDATE sessions SET ttl=? WHERE token=?";
+			db.run(SQL,[ttl,req.headers.token],function(err) {
+				if(err) {
+					console.log("Failed to edit session. Reason",err)
+				}
+				return next();
+			})
+		}
+	})
 }
 
 //LOGIN API
@@ -112,42 +126,49 @@ app.post("/login",function(req,res) {
 	if(req.body.username.length < 4 || req.body.password.length < 8) {
 		return res.status(400).json({message:"Bad request"});
 	}
-	for(let i=0;i<registeredUsers.length;i++) {
-		if(registeredUsers[i].username === req.body.username) {
-			bcrypt.compare(req.body.password,registeredUsers[i].password,function(err,success) {
-				if(err) {
-					return res.status(400).json({message:"Bad request"})
-				}
-				if(!success) {
-					return res.status(401).json({message:"Unauthorized"})
-				}
-				let token = createToken();
-				let now = Date.now();
-				let session = {
-					user:req.body.username,
-					ttl:now+time_to_live_diff,
-					token:token
-				}
-				loggedSessions.push(session);
-				return res.status(200).json({token:token})
-			})
-			return;
+	let SQL = "SELECT * FROM users WHERE username=?"
+	db.get(SQL,[req.body.username],function(err,user) {
+		if(err) {
+			console.log("Failed to select user. Reason",err)
+			return res.status(500).json({message:"Internal Server Error"})
 		}
-	}
-	return res.status(401).json({message:"Unauthorized"})
+		if(!user) {
+			return res.status(401).json({message:"Unauthorized"});
+		}
+		bcrypt.compare(req.body.password,user.password,function(err,success) {
+			if(err) {
+				console.log("Failed to compare password hashes. Reason",err);
+				return res.status(500).json({message:"Internal Server Error"})
+			}
+			if(!success) {
+				return res.status(401).json({message:"Unauthorized"});
+			}
+			let token = createToken();
+			let now = Date.now();
+			SQL = "INSERT INTO sessions(user,token,ttl) values (?,?,?)";
+			let ttl = now+time_to_live_diff;
+			db.run(SQL,[req.body.username,token,ttl],function(err) {
+				if(err) {
+					console.log("Failed to save session. Reason",err);
+					return res.status(500).json({message:"Internal Server Error"})
+				}
+				return res.status(200).json({token:token});
+			})
+		})
+	})
 })
 
 app.post("/logout",function(req,res) {
 	if(!req.headers.token) {
 		return res.status(404).json({message:"Not found"})
 	}
-	for(let i=0;i<loggedSessions.length;i++) {
-		if(req.headers.token === loggedSessions[i].token) {
-			loggedSessions.splice(i,1);
-			return res.status(200).json({message:"Logged out!"})
+	let SQL = "DELETE FROM sessions WHERE token=?";
+	db.run(SQL,[req.headers.token],function(err) {
+		if(err) {
+			console.log("Failed to remove session in logout. Reason",err)
 		}
-	}
-	return res.status(404).json({message:"Not found"})
+		return res.status(200).json({message:"Logged out!"})
+	})
 })
 
 app.use("/api",isUserLogged,apiroute);
