@@ -1,7 +1,11 @@
 import {useState} from 'react';
 import {Form,Button} from 'semantic-ui-react';
+import {useDispatch} from 'react-redux';
+import {register,login} from '../actions/loginActions';
 
 const LoginPage = (props) => {
+	
+	const dispatch = useDispatch();
 
 	const [state,setState] = useState({
 		username:"",
@@ -24,9 +28,9 @@ const LoginPage = (props) => {
 			...state
 		}
 		if(event.target.name === "register") {
-			props.register(user);
+			dispatch(register(user));
 		} else {
-			props.login(user);
+			dispatch(login(user));
 		}
 	}
 	

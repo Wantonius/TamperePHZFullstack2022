@@ -235,31 +235,7 @@ function App() {
 		})
 	}
 	
-	const register = (user) => {
-		setUrlRequest({
-			url:"/register",
-			request:{
-				method:"POST",
-				mode:"cors",
-				headers:{"Content-type":"application/json"},
-				body:JSON.stringify(user)
-			},
-			action:"register"
-		})
-	}
 
-	const login = (user) => {
-		setUrlRequest({
-			url:"/login",
-			request:{
-				method:"POST",
-				mode:"cors",
-				headers:{"Content-type":"application/json"},
-				body:JSON.stringify(user)
-			},
-			action:"login"
-		})
-	}
 
 	const logout = (user) => {
 		setUrlRequest({
@@ -275,7 +251,7 @@ function App() {
 	}
 	
 	let tempRender = <Routes>
-					<Route exact path="/" element={<LoginPage register={register} login={login} setError={setError}/>}/>
+					<Route exact path="/" element={<LoginPage setError={setError}/>}/>
 					<Route path="*" element={<Navigate to="/"/>}/>
 					</Routes>
 	if(state.isLogged) {
