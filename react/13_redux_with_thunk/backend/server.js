@@ -21,7 +21,7 @@ app.post("/api/contact",function(req,res) {
 	if(!req.body) {
 		return res.status(400).json({message:"Bad request"});
 	}
-	if(!req.body.type) {
+	if(!req.body.firstname) {
 		return res.status(400).json({message:"Bad request"});
 	}
 	let item = {

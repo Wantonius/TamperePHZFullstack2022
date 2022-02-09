@@ -1,5 +1,6 @@
 import {useState} from 'react';
 import {useDispatch} from 'react-redux';
+import {addContact} from '../actions/contactActions';
 
 const ContactForm = (props) => {
 	
@@ -25,10 +26,7 @@ const ContactForm = (props) => {
 		let contact = {
 			...state
 		}
-		dispatch({
-			type:"ADD_CONTACT",
-			contact:contact
-		})
+		dispatch(addContact(contact))
 		setState({
 			firstname:"",
 			lastname:"",

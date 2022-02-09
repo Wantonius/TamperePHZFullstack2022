@@ -1,24 +1,31 @@
 const initialState = {
 	list:[],
-	id:100
+	error:""
 }
 
 const contactReducer = (state = initialState, action) => {
 	console.log(action);
 	let tempList=[];
 	switch(action.type) {
-		case "ADD_CONTACT":
-			action.contact.id = state.id
-			tempList = state.list.concat(action.contact);
+		case "GET_LIST":
 			return {
-				list:tempList,
-				id:state.id+1
+				list:action.list,
+				error:""
 			}
-		case "REMOVE_CONTACT":
-			tempList = state.list.filter(contact => contact.id !== action.id)
+		case "ADD_CONTACT":
 			return {
 				...state,
-				list:tempList
+				error:""
+			}
+		case "REMOVE_CONTACT":
+			return {
+				...state,
+				error:""
+			}
+		case "ERROR":
+			return {
+				...state,
+				error:action.error
 			}
 		default:
 			return state;

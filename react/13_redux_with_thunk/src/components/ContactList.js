@@ -1,4 +1,5 @@
 import {useDispatch,useSelector} from 'react-redux';
+import {removeContact} from '../actions/contactActions';
 
 const ContactList = (props) => {
 	
@@ -13,10 +14,7 @@ const ContactList = (props) => {
 				<td>{contact.email}</td>
 				<td>{contact.phone}</td>
 				<td>{contact.address}</td>
-				<td><button onClick={() => dispatch({
-					type:"REMOVE_CONTACT",
-					id:contact.id
-				})}>Remove</button></td>
+				<td><button onClick={() => dispatch(removeContact(contact.id))}>Remove</button></td>
 			</tr>	
 		)
 	})
