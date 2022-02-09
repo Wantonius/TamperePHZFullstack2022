@@ -21,7 +21,6 @@ const LoginPage = (props) => {
 	
 	const onSubmit = (event) => {
 		if(state.username.length < 4 || state.password.length < 8) {
-			props.setError("Username must be atleast 4 characters and password 8 characters long");
 			return;
 		}
 		let user = {

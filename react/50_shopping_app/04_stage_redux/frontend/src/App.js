@@ -64,38 +64,17 @@ function App() {
 					getList();
 					return;
 				}
-				if(urlRequest.action === "logout") {
-					clearState();
-					return;
-				}
 			} else {
 				if(urlRequest.action === "getlist") {
-					if(response.status === 403) {
-						clearState();
-						return;
-					}
+	
 				}
 				if(urlRequest.action === "additem") {
-					if(response.status === 403) {
-						clearState();
-						return;
-					}
+
 				}
 				if(urlRequest.action === "removeitem") {
-					if(response.status === 403) {
-						clearState();
-						return;
-					}
 				}
 				if(urlRequest.action === "edititem") {
-					if(response.status === 403) {
-						clearState();
-						return;
-					}
-				}
-				}
-				if(urlRequest.action === "logout") {
-					clearState();
+	
 				}
 			}
 		}
@@ -104,11 +83,6 @@ function App() {
 	},[urlRequest]);
 	// HELPERS
 	
-	const clearState = () => {
-		setState({
-			list:[]
-		})
-	}
 	
 	
 	//REST API
@@ -180,21 +154,7 @@ function App() {
 			action:"edititem"
 		})
 	}
-	
 
-
-	const logout = (user) => {
-		setUrlRequest({
-			url:"/logout",
-			request:{
-				method:"POST",
-				mode:"cors",
-				headers:{"Content-type":"application/json",
-						"token":appState.token}
-			},
-			action:"logout"
-		})
-	}
 	
 	let tempRender = <Routes>
 					<Route exact path="/" element={<LoginPage/>}/>
@@ -209,7 +169,7 @@ function App() {
 	}
 	return (
 		<div className="App">
-			<Navbar error={state.error} loading={state.loading} isLogged={state.isLogged} logout={logout}/>
+			<Navbar/>
 			<hr/>
 			{tempRender}
 		</div>
