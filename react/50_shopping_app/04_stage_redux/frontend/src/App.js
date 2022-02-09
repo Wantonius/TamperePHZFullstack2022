@@ -5,8 +5,16 @@ import ShoppingForm from './components/ShoppingForm';
 import ShoppingList from './components/ShoppingList';
 import Navbar from './components/Navbar';
 import LoginPage from './components/LoginPage';
+import {useSelector} from 'react-redux';
 
 function App() {
+
+	const appState = useSelector(state => {
+		return {
+			isLogged:state.isLogged,
+			token:state.token
+		}
+	})
 
 	const [urlRequest,setUrlRequest] = useState({
 		url:"",
@@ -15,11 +23,7 @@ function App() {
 	});
 
 	const [state,setState] = useState({
-		list:[],
-		isLogged:false,
-		token:"",
-		loading:false,
-		error:""
+		list:[]
 	});
 	
 	useEffect(() => {
@@ -31,7 +35,7 @@ function App() {
 	
 	useEffect(() => {
 		sessionStorage.setItem("state",JSON.stringify(state));
-	},[state.list,state.isLogged,state.token])
+	},[state.list])
 	
 	useEffect(() => {
 		if(urlRequest.url === "") {
@@ -39,15 +43,11 @@ function App() {
 		}
 		
 		const fetchData = async () => {
-			setError("");
-			setLoading(true);
 			const response = await fetch(urlRequest.url,urlRequest.request);
-			setLoading(false);
 			if(response.ok) {
 				if(urlRequest.action === "getlist") {
 					const data = await response.json();
 					setState({
-						...state,
 						list:data
 					})
 					return;
@@ -64,20 +64,6 @@ function App() {
 					getList();
 					return;
 				}
-				if(urlRequest.action === "register") {
-					setError("Register success!");
-					return;
-				}
-				if(urlRequest.action === "login") {
-					let data = await response.json();
-					setState({
-						...state,
-						isLogged:true,
-						token:data.token,
-						error:""
-					})
-					getList(data.token);
-				}
 				if(urlRequest.action === "logout") {
 					clearState();
 					return;
@@ -86,48 +72,30 @@ function App() {
 				if(urlRequest.action === "getlist") {
 					if(response.status === 403) {
 						clearState();
-						setError("Session has expired. Logging you out!");
 						return;
 					}
-					setError("Server responded with a status "+response.statusText)
 				}
 				if(urlRequest.action === "additem") {
 					if(response.status === 403) {
 						clearState();
-						setError("Session has expired. Logging you out!");
 						return;
 					}
-					setError("Server responded with a status "+response.statusText)
 				}
 				if(urlRequest.action === "removeitem") {
 					if(response.status === 403) {
 						clearState();
-						setError("Session has expired. Logging you out!");
 						return;
 					}
-					setError("Server responded with a status "+response.statusText)
 				}
 				if(urlRequest.action === "edititem") {
 					if(response.status === 403) {
 						clearState();
-						setError("Session has expired. Logging you out!");
 						return;
 					}
-					setError("Server responded with a status "+response.statusText)
 				}
-				if(urlRequest.action === "register") {
-					if(response.status === 409) {
-						setError("Username already in use");
-						return;
-					}
-					setError("Server responded with a status "+response.statusText)
-				}
-				if(urlRequest.action === "login") {
-					setError("Server responded with a status "+response.statusText)
 				}
 				if(urlRequest.action === "logout") {
 					clearState();
-					setError("Server responded with an error. Logging you out!");
 				}
 			}
 		}
@@ -138,36 +106,14 @@ function App() {
 	
 	const clearState = () => {
 		setState({
-			list:[],
-			isLogged:false,
-			loading:false,
-			error:"",
-			token:""
+			list:[]
 		})
 	}
 	
-	const setError = (error) => {
-		setState((state) => {
-		return {
-			...state,
-			error:error
-			}
-		})
-	}
-	
-	const setLoading = (loading) => {
-		setState((state) => {
-		return {
-			...state,
-			error:"",
-			loading:loading
-		}
-		})
-	}
 	
 	//REST API
 	const getList = (token,search,price) => {
-		let temp = state.token;
+		let temp = appState.token;
 		if(token) {
 			temp = token;
 		}
@@ -201,7 +147,7 @@ function App() {
 				method:"POST",
 				mode:"cors",
 				headers:{"Content-type":"application/json",
-					"token":state.token},
+					"token":appState.token},
 				body:JSON.stringify(item)
 			},
 			action:"additem"
@@ -215,7 +161,7 @@ function App() {
 				method:"DELETE",
 				mode:"cors",
 				headers:{"Content-type":"application/json",
-					"token":state.token}
+					"token":appState.token}
 			},
 			action:"removeitem"
 		})
@@ -228,7 +174,7 @@ function App() {
 				method:"PUT",
 				mode:"cors",
 				headers:{"Content-type":"application/json",
-					"token":state.token},
+					"token":appState.token},
 				body:JSON.stringify(item)
 			},
 			action:"edititem"
@@ -244,17 +190,17 @@ function App() {
 				method:"POST",
 				mode:"cors",
 				headers:{"Content-type":"application/json",
-						"token":state.token}
+						"token":appState.token}
 			},
 			action:"logout"
 		})
 	}
 	
 	let tempRender = <Routes>
-					<Route exact path="/" element={<LoginPage setError={setError}/>}/>
+					<Route exact path="/" element={<LoginPage/>}/>
 					<Route path="*" element={<Navigate to="/"/>}/>
 					</Routes>
-	if(state.isLogged) {
+	if(appState.isLogged) {
 		tempRender = <Routes>
 				<Route exact path="/" element={<ShoppingList list={state.list} removeFromList={removeFromList} editItem={editItem} getList={getList}/>}/>
 				<Route path="/form" element={<ShoppingForm addToList={addToList}/>}/>
