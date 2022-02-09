@@ -3,8 +3,19 @@ import {Table,Button} from 'semantic-ui-react';
 import Row from './Row';
 import RemoveRow from './RemoveRow';
 import EditRow from './EditRow';
+import {useDispatch,useSelector} from 'react-redux';
+import {removeItem,edit,getList} from '../actions/shoppingActions';
 
 const ShoppingList = (props) => {
+	
+	const appState = useSelector(state => {
+		return {
+			token:state.login.token,
+			list:state.shopping.list
+		}
+	})
+	
+	const dispatch = useDispatch();
 	
 	const [state,setState] = useState({
 		removeIndex:-1,
@@ -17,7 +28,7 @@ const ShoppingList = (props) => {
 	})
 	
 	const searchByType = () => {
-		props.getList("",search.type,search.price);
+		dispatch(getList(appState.token,search.type,search.price));
 		setSearch({
 			type:"",
 			price:0
@@ -55,16 +66,16 @@ const ShoppingList = (props) => {
 	}
 	
 	const removeFromList = (id) => {
-		props.removeFromList(id);
+		dispatch(removeItem(appState.token,id));
 		cancel();
 	}
 	
 	const editItem = (item) => {
-		props.editItem(item);
+		dispatch(edit(appState.token,item));
 		cancel();
 	}
 	
-	let items = props.list.map((item,index) => {
+	let items = appState.list.map((item,index) => {
 		if(index === state.editIndex) {
 			return (
 				<EditRow key={item.id} item={item} cancel={cancel} editItem={editItem}/>

@@ -1,3 +1,5 @@
+import {getList,clearShoppingState} from './shoppingActions';
+
 export const LOADING = "LOADING";
 export const STOP_LOADING = "STOP_LOADING";
 export const REGISTER_SUCCESS = "REGISTER_SUCCESS";
@@ -56,6 +58,7 @@ export const login = (user) => {
 				return;
 			}
 			dispatch(loginSuccess(data.token))
+			dispatch(getList(data.token));
 		} else {
 			dispatch(loginFailed("Login failed. Server responded with a status:"+response.statusText))
 		}
@@ -72,13 +75,16 @@ export const logout = (token) => {
 		}
 		dispatch(loading());
 		let response = await fetch("/logout",request);
+		dispatch(clearShoppingState());
 		if(!response) {
 			dispatch(logoutFailed("There was an error with the connection. Logging you out!"));
+			return;
 		}
 		if(response.ok) {
 			dispatch(logoutSuccess());
 		} else {
 			dispatch(logoutFailed("Server responded with a status "+response.statusText+". Logging you out!"))
+
 		}
 	}
 }

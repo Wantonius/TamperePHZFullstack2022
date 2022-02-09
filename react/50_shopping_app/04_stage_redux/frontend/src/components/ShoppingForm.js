@@ -1,7 +1,12 @@
 import {useState} from 'react';
 import {Form,Button} from 'semantic-ui-react';
+import {useDispatch,useSelector} from 'react-redux';
+import {addToList} from '../actions/shoppingActions';
 
 const ShoppingForm = (props) => {
+	
+	const token = useSelector(state => state.login.token)
+	const dispatch = useDispatch();
 	
 	const [state,setState] = useState({
 		type:"",
@@ -24,7 +29,7 @@ const ShoppingForm = (props) => {
 		let item = {
 			...state
 		}
-		props.addToList(item);
+		dispatch(addToList(token,item));
 		setState({
 			type:"",
 			count:0,
