@@ -12,3 +12,5 @@ const StateManager = (Component) => {
 		}
 	}
 }
+
+export default StateManager;

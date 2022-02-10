@@ -16,7 +16,6 @@ class ContactForm extends React.Component {
 	
 	onChange = (event) => {
 		this.setState({
-			...state,
 			[event.target.name]:event.target.value
 		})
 	}
@@ -36,34 +35,34 @@ class ContactForm extends React.Component {
 	}
 	render() {
 	return(
-		<Form onSubmit={onSubmit}>
+		<Form onSubmit={this.onSubmit}>
 			<Form.Field>
 				<label htmlFor="firstname">First name:</label>
 				<input type="text"
 						name="firstname"
-						onChange={onChange}
-						value={state.firstname}/>
+						onChange={this.onChange}
+						value={this.state.firstname}/>
 			</Form.Field>
 			<Form.Field>
 				<label htmlFor="lastname">Last name:</label>
 				<input type="text"
 						name="lastname"
-						onChange={onChange}
-						value={state.lastname}/>
+						onChange={this.onChange}
+						value={this.state.lastname}/>
 			</Form.Field>
 			<Form.Field>
 				<label htmlFor="email">Email:</label>
 				<input type="email"
 						name="email"
-						onChange={onChange}
-						value={state.email}/>
+						onChange={this.onChange}
+						value={this.state.email}/>
 			</Form.Field>
 			<Form.Field>
 				<label htmlFor="phone">Phone:</label>
 				<input type="tel"
 						name="phone"
-						onChange={onChange}
-						value={state.phone}/>
+						onChange={this.onChange}
+						value={this.state.phone}/>
 			</Form.Field>
 			<Button type="submit">Add</Button>
 		</Form>

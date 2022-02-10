@@ -12,7 +12,7 @@ class ContactList extends React.Component {
 					<Table.Cell>{contact.email}</Table.Cell>
 					<Table.Cell>{contact.phone}</Table.Cell>
 					<Table.Cell>
-						<Button color="red" onClick={() => props.removeFromList(contact.id)}>Remove</Button>
+						<Button color="red" onClick={() => this.props.removeFromList(contact.id)}>Remove</Button>
 					</Table.Cell>
 				</Table.Row>
 			)
