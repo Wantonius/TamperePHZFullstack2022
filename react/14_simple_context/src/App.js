@@ -9,7 +9,7 @@ import ToggleButton from './ToggleButton';
 function App() {
 	
 	const [state,setState] = useState({
-		themes:themes.dark
+		theme:themes.dark
 	})
 	
 	const toggleTheme = () => {
