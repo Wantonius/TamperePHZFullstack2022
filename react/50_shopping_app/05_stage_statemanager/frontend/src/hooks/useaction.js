@@ -1,7 +1,7 @@
 import {useContext,useEffect,useState} from 'react';
 import ActionContext from '../context/ActionContext';
 import * as actionConstants from '../types/actionConstants';
-import useAppState from './useAppState';
+import useAppState from './useappstate';
 
 const useAction = () => {
 	
@@ -78,25 +78,121 @@ const useAction = () => {
 						action.dispatch({
 							type:actionConstants.ADD_ITEM_SUCCESS
 						})
+						getList();
 						return;
 					case "removeitem":
 						action.dispatch({
 							type:actionConstants.REMOVE_ITEM_SUCCESS
 						})
+						getList();
 						return;
 					case "edititem":
 						action.dispatch({
 							type:actionConstants.EDIT_ITEM_SUCCESS
 						})
+						getList();
 						return;
 					default:
 						return;
 				}
 			} else {
-				
+				switch(state.action) {
+					case "register":
+						if(response.status === 409) {
+							action.dispatch({
+								type:actionConstants.REGISTER_FAILED,
+								error:"Username already in use"
+							})
+							return;
+						}
+						action.dispatch({
+							type:actionConstants.REGISTER_FAILED,
+							error:"Server responded with a status "+response.statusText
+						})
+						return;
+					case "login":
+						action.dispatch({
+							type:actionConstants.LOGIN_FAILED,
+							error:"Server responded with a status "+response.statusText
+						})
+						return;
+					case "logout":
+						action.dispatch({
+							type:actionConstants.LOGOUT_FAILED,
+							error:"Failed to remove session information. Logging you out!"
+						})
+						return;
+					case "getlist":
+						if(response.status === 403) {
+							action.dispatch({
+								type:actionConstants.LOGOUT_SUCCESS
+							})
+							action.dispatch({
+								type:actionConstants.FETCH_LIST_FAILED,
+								error:"Session has expired. Logging you out!"
+							})
+							return;
+						}
+						action.dispatch({
+							type:actionConstants.FETCH_LIST_FAILED,
+							error:"Server responded with a status "+response.statusText
+						})
+						return;
+					case "additem":
+						if(response.status === 403) {
+							action.dispatch({
+								type:actionConstants.LOGOUT_SUCCESS
+							})
+							action.dispatch({
+								type:actionConstants.ADD_ITEM_FAILED,
+								error:"Session has expired. Logging you out!"
+							})
+							return;
+						}
+						action.dispatch({
+							type:actionConstants.ADD_ITEM_FAILED,
+							error:"Server responded with a status "+response.statusText
+						})
+						return;
+					case "removeitem":
+						if(response.status === 403) {
+							action.dispatch({
+								type:actionConstants.LOGOUT_SUCCESS
+							})
+							action.dispatch({
+								type:actionConstants.REMOVE_ITEM_FAILED,
+								error:"Session has expired. Logging you out!"
+							})
+							return;
+						}
+						action.dispatch({
+							type:actionConstants.REMOVE_ITEM_FAILED,
+							error:"Server responded with a status "+response.statusText
+						})
+						return;
+					case "edititem":
+						if(response.status === 403) {
+							action.dispatch({
+								type:actionConstants.LOGOUT_SUCCESS
+							})
+							action.dispatch({
+								type:actionConstants.EDIT_ITEM_FAILED,
+								error:"Session has expired. Logging you out!"
+							})
+							return;
+						}
+						action.dispatch({
+							type:actionConstants.EDIT_ITEM_FAILED,
+							error:"Server responded with a status "+response.statusText
+						})
+						return;
+					default:
+						return;
+				}				
 			}
 		}
 		
+		fetchData();
 	},[state]);
 	
 	const register = (user) => {
@@ -138,9 +234,20 @@ const useAction = () => {
 		})
 	}
 	
-	const getList = () => {
+	const getList = (search,price) => {
+		let url = "/api/shopping"
+		if(search) {
+			url = url + "?type="+search
+			if(price) {
+				url = url + "&price="+price
+			}
+		} else {
+			if(price) {
+				url = url + "?price="+price
+			}
+		}
 		setState({
-			url:"/api/shopping",
+			url:url,
 			request:{
 				method:"GET",
 				mode:"cors",
@@ -178,14 +285,15 @@ const useAction = () => {
 		})
 	}
 	
-	const editItem = (item) => {
+	const edit = (item) => {
 		setState({
 			url:"/api/shopping/"+item.id,
 			request:{
 				method:"PUT",
 				mode:"cors",
 				headers:{"Content-type":"application/json",
-				token:token}
+				token:token},
+				body:JSON.stringify(item)
 			},
 			action:"edititem"
 		})
@@ -198,7 +306,7 @@ const useAction = () => {
 		getList,
 		addItem,
 		removeItem,
-		editItem
+		edit
 	}
 }
 

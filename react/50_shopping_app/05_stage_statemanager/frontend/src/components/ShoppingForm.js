@@ -1,7 +1,10 @@
 import {useState} from 'react';
 import {Form,Button} from 'semantic-ui-react';
+import useAction from '../hooks/useaction';
 
 const ShoppingForm = (props) => {
+	
+	const {addItem} = useAction();
 	
 	const [state,setState] = useState({
 		type:"",
@@ -24,7 +27,7 @@ const ShoppingForm = (props) => {
 		let item = {
 			...state
 		}
-		props.addToList(item);
+		addItem(item);
 		setState({
 			type:"",
 			count:0,

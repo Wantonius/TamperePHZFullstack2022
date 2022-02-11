@@ -3,8 +3,13 @@ import {Table,Button} from 'semantic-ui-react';
 import Row from './Row';
 import RemoveRow from './RemoveRow';
 import EditRow from './EditRow';
+import useAppState from '../hooks/useappstate';
+import useAction from '../hooks/useaction';
 
 const ShoppingList = (props) => {
+	
+	const {list} = useAppState();
+	const {removeItem,edit,getList} = useAction();
 	
 	const [state,setState] = useState({
 		removeIndex:-1,
@@ -17,7 +22,7 @@ const ShoppingList = (props) => {
 	})
 	
 	const searchByType = () => {
-		props.getList("",search.type,search.price);
+		getList(search.type,search.price);
 		setSearch({
 			type:"",
 			price:0
@@ -55,16 +60,16 @@ const ShoppingList = (props) => {
 	}
 	
 	const removeFromList = (id) => {
-		props.removeFromList(id);
+		removeItem(id);
 		cancel();
 	}
 	
 	const editItem = (item) => {
-		props.editItem(item);
+		edit(item);
 		cancel();
 	}
 	
-	let items = props.list.map((item,index) => {
+	let items = list.map((item,index) => {
 		if(index === state.editIndex) {
 			return (
 				<EditRow key={item.id} item={item} cancel={cancel} editItem={editItem}/>

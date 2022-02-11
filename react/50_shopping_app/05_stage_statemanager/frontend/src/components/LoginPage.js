@@ -1,7 +1,10 @@
 import {useState} from 'react';
 import {Form,Button} from 'semantic-ui-react';
+import useAction from '../hooks/useaction';
 
 const LoginPage = (props) => {
+	
+	const {register,login} = useAction();
 
 	const [state,setState] = useState({
 		username:"",
@@ -17,16 +20,15 @@ const LoginPage = (props) => {
 	
 	const onSubmit = (event) => {
 		if(state.username.length < 4 || state.password.length < 8) {
-			props.setError("Username must be atleast 4 characters and password 8 characters long");
 			return;
 		}
 		let user = {
 			...state
 		}
 		if(event.target.name === "register") {
-			props.register(user);
+			register(user);
 		} else {
-			props.login(user);
+			login(user);
 		}
 	}
 	
