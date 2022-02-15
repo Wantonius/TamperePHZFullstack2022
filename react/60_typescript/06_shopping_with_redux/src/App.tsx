@@ -7,16 +7,19 @@ import {Routes,Route,Navigate} from 'react-router-dom';
 import {useSelector} from 'react-redux';
 
 interface State {
-	isLogged:boolean
+	login:{
+		isLogged:boolean,
+		token:string
+	}
 }
 
 function App() {
 	
-	const tempState = (state:State) => state.isLogged
+	const tempState = (state:State) => state
 	
-	const isLogged = useSelector(tempState);
+	const state = useSelector(tempState);
 	
-	if(isLogged) {
+	if(state.login.isLogged) {
 		return(
 			<div className="App">
 				<Navbar/>

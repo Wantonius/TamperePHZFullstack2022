@@ -7,10 +7,16 @@ import {BrowserRouter} from 'react-router-dom';
 import {createStore,applyMiddleware,Store,AnyAction,combineReducers} from 'redux';
 import {Provider} from 'react-redux';
 import thunk from 'redux-thunk';
-import {LoginState} from './types/states';
+import {AppState} from './types/states';
 import loginReducer from './reducers/loginReducer';
+import shoppingReducer from './reducers/shoppingReducer';
 
-const store:Store<LoginState,AnyAction> = createStore(loginReducer,applyMiddleware(thunk));
+const rootReducer = combineReducers<AppState>({
+	login:loginReducer,
+	shopping:shoppingReducer
+})
+
+const store:Store<AppState,AnyAction> = createStore(rootReducer,applyMiddleware(thunk));
 
 ReactDOM.render(
   <React.StrictMode>

@@ -6,10 +6,15 @@ import {ThunkDispatch} from 'redux-thunk';
 import {logout} from '../actions/loginActions';
 
 interface State {
-	isLogged:boolean;
-	error:string;
-	loading:boolean;
-	token:string;
+	login:{
+		isLogged:boolean;
+		error:string;
+		loading:boolean;
+		token:string;
+	},
+	shopping:{
+		error:string
+	}
 }
 
 const Navbar:React.FC<{}> = () => {
@@ -25,13 +30,20 @@ const Navbar:React.FC<{}> = () => {
 		height:120
 	}
 	let header = <h3>Shopping App</h3>
-	if(state.loading) {
+	if(state.login.loading) {
 		header = <h3>Shopping App ...loading</h3>
 	}
-	if(state.error) {
-		header = <h3>{state.error}</h3>
+	let error = "";
+	if(state.shopping.error) {
+		error = state.shopping.error
 	}
-	if(state.isLogged) {
+	if(state.login.error) {
+		error = state.login.error
+	}
+	if(error) {
+		header = <h3>{error}</h3>
+	}
+	if(state.login.isLogged) {
 		return (
 			<div style={navStyle}>
 				{header}
@@ -39,7 +51,7 @@ const Navbar:React.FC<{}> = () => {
 					<li><Link to="/">Shopping List</Link></li>
 					<li><Link to="/form">Add to List</Link></li>
 					<li><Link to="/" onClick={() => {
-						dispatch(logout(state.token))
+						dispatch(logout(state.login.token))
 					}}>Logout</Link></li>
 				</ul>
 			</div>
