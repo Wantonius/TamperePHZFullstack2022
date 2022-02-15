@@ -6,10 +6,10 @@ import {ThunkDispatch} from 'redux-thunk';
 import {logout} from '../actions/loginActions';
 
 interface State {
-	isLogged:boolean,
-	error:string,
-	loading:boolean,
-	token:string
+	isLogged:boolean;
+	error:string;
+	loading:boolean;
+	token:string;
 }
 
 const Navbar:React.FC<{}> = () => {
@@ -45,9 +45,11 @@ const Navbar:React.FC<{}> = () => {
 			</div>
 		)
 	} else {
-		<div style={navStyle}>
-			{header}
-		</div>
+		return(
+			<div style={navStyle}>
+				{header}
+			</div>
+		)
 	}
 	
 }

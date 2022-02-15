@@ -1,6 +1,6 @@
 import * as actionConstants from '../types/actionConstants';
 import {ThunkDispatch} from 'redux-thunk';
-import {AnyAction} from 'redux;
+import {AnyAction} from 'redux';
 
 interface Token {
 	token:string
@@ -41,11 +41,11 @@ export const logout = (token:string) => {
 		const request:Request = new Request("/logout",{
 			method:"POST",
 			mode:"cors",
-			headers:{"Content-type":"application/json"
+			headers:{"Content-type":"application/json",
 			token:token}
-		})
+		})	
+		handleLogin(request,"logout",dispatch);
 	}
-	handleLogin(request,"logout",dispatch);
 }
 
 const handleLogin = async (request:Request,act:string,dispatch:ThunkDispatch<any,any,AnyAction>) => {
