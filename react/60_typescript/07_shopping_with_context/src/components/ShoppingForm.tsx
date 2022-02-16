@@ -1,15 +1,8 @@
 import React,{useState} from 'react';
 import ShoppingItem from '../models/ShoppingItem';
-import {addItem} from '../actions/shoppingActions';
-import {ThunkDispatch} from 'redux-thunk';
-import {AnyAction} from 'redux';
-import {useDispatch,useSelector} from 'react-redux';
+import useAction from '../hooks/useaction';
+import useAppState from '../hooks/useappstate';
 
-interface TokenState {
-	login:{
-		token:string
-	}
-}
 
 interface State {
 	type:string;
@@ -25,11 +18,8 @@ const ShoppingForm:React.FC<{}> = () => {
 		price:0
 	})
 	
-	const tokenState = (state:TokenState) => state.login.token
-
-	const token = useSelector(tokenState);
-	
-	const dispatch:ThunkDispatch<any,any,AnyAction> = useDispatch();
+	const {addItem} = useAction();
+	const {token} = useAppState();
 	
 	const onChange = (e:React.ChangeEvent<HTMLInputElement>) => {
 		setState((state) => {
@@ -43,7 +33,7 @@ const ShoppingForm:React.FC<{}> = () => {
 	const onSubmit = (e:React.SyntheticEvent) => {
 		e.preventDefault();
 		let item = new ShoppingItem(0,state.type,state.count,state.price);
-		dispatch(addItem(token,item));
+		addItem(token,item);
 		setState({
 			type:"",
 			count:0,

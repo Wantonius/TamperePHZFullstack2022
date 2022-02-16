@@ -5,7 +5,7 @@ import ShoppingItem from '../models/ShoppingItem';
 import * as actionConstants from '../types/actionConstants';
 
 const getInitialState = ():AppState => {
-	let state = sessionStorage.getItem("state"));
+	let state = sessionStorage.getItem("state");
 	if(state) {
 		return JSON.parse(state);
 	} else {
@@ -26,6 +26,7 @@ const saveToStorage = (state:AppState) => {
 const initialState = getInitialState();
 
 const listReducer = (state:AppState,action:Action) => {
+	console.log(action)
 	let tempState:AppState = {
 		list:[],
 		isLogged:false,

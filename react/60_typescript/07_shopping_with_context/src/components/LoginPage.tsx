@@ -1,8 +1,5 @@
 import React,{useState} from 'react';
-import {register,login} from '../actions/loginActions';
-import {useDispatch} from 'react-redux';
-import {AnyAction} from 'redux';
-import {ThunkDispatch} from 'redux-thunk';
+import useAction from '../hooks/useaction';
 
 interface State {
 	username:string,
@@ -16,7 +13,7 @@ const LoginPage:React.FC<{}> = () => {
 		password:""
 	})
 	
-	const dispatch:ThunkDispatch<any,any,AnyAction> = useDispatch();
+	const {register,login} = useAction();
 	
 	const onChange = (e:React.ChangeEvent<HTMLInputElement>) => {
 		setState((state) => {
@@ -28,13 +25,14 @@ const LoginPage:React.FC<{}> = () => {
 	}
 	
 	const onRegister = (e:React.SyntheticEvent) => {
+		console.log("moi!");
 		e.preventDefault();
-		dispatch(register(state.username,state.password));
+		register(state.username,state.password);
 	}
 
 	const onLogin = (e:React.SyntheticEvent) => {
 		e.preventDefault();
-		dispatch(login(state.username,state.password));
+		login(state.username,state.password);
 	}	
 	return (
 		<form>

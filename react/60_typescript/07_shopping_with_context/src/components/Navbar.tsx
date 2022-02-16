@@ -1,49 +1,25 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
-import {useSelector,useDispatch} from 'react-redux';
-import {AnyAction} from 'redux';
-import {ThunkDispatch} from 'redux-thunk';
-import {logout} from '../actions/loginActions';
-
-interface State {
-	login:{
-		isLogged:boolean;
-		error:string;
-		loading:boolean;
-		token:string;
-	},
-	shopping:{
-		error:string
-	}
-}
+import useAction from '../hooks/useaction';
+import useAppState from '../hooks/useappstate';
 
 const Navbar:React.FC<{}> = () => {
-	
-	const tempState = (state:State) => state
 
-	const state = useSelector(tempState);
-	
-	const dispatch:ThunkDispatch<any,any,AnyAction> = useDispatch();
+	const {logout} = useAction();
+	const {isLogged,token,error,loading} = useAppState();
 	
 	let navStyle:React.CSSProperties = {
 		backgroundColor:"lightgreen",
 		height:120
 	}
 	let header = <h3>Shopping App</h3>
-	if(state.login.loading) {
+	if(loading) {
 		header = <h3>Shopping App ...loading</h3>
-	}
-	let error = "";
-	if(state.shopping.error) {
-		error = state.shopping.error
-	}
-	if(state.login.error) {
-		error = state.login.error
 	}
 	if(error) {
 		header = <h3>{error}</h3>
 	}
-	if(state.login.isLogged) {
+	if(isLogged) {
 		return (
 			<div style={navStyle}>
 				{header}
@@ -51,7 +27,7 @@ const Navbar:React.FC<{}> = () => {
 					<li><Link to="/">Shopping List</Link></li>
 					<li><Link to="/form">Add to List</Link></li>
 					<li><Link to="/" onClick={() => {
-						dispatch(logout(state.login.token))
+						logout(token)
 					}}>Logout</Link></li>
 				</ul>
 			</div>

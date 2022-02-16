@@ -3,19 +3,8 @@ import ShoppingItem from '../models/ShoppingItem';
 import Row from './Row';
 import RemoveRow from './RemoveRow';
 import EditRow from './EditRow';
-import {ThunkDispatch} from 'redux-thunk';
-import {useDispatch,useSelector} from 'react-redux';
-import {AnyAction} from 'redux';
-import {removeItem,edit} from '../actions/shoppingActions';
-
-interface ListState {
-	login:{
-		token:string
-	},
-	shopping:{
-		list:ShoppingItem[]
-	}
-}
+import useAction from '../hooks/useaction';
+import useAppState from '../hooks/useappstate';
 
 interface State {
 	removeIndex:number;
@@ -29,14 +18,14 @@ const ShoppingList:React.FC<{}> = () => {
 		editIndex:-1
 	})
 	
-	const dispatch:ThunkDispatch<any,any,AnyAction> = useDispatch();
-	const listState = (state:ListState) => state;
+	const {list,token} = useAppState();
+	const {removeItem,edit} = useAction();
 	
-	const appState = useSelector(listState);
+
 	
 	const handleRemoveButton = (id:number|string) => {
-		for(let i=0;i<appState.shopping.list.length;i++) {
-			if(id === appState.shopping.list[i].id) {
+		for(let i=0;i<list.length;i++) {
+			if(id === list[i].id) {
 				setState({
 					removeIndex:i,
 					editIndex:-1
@@ -46,8 +35,8 @@ const ShoppingList:React.FC<{}> = () => {
 	}
 
 	const handleEditButton = (id:number|string) => {
-		for(let i=0;i<appState.shopping.list.length;i++) {
-			if(id === appState.shopping.list[i].id) {
+		for(let i=0;i<list.length;i++) {
+			if(id === list[i].id) {
 				setState({
 					removeIndex:-1,
 					editIndex:i
@@ -64,16 +53,16 @@ const ShoppingList:React.FC<{}> = () => {
 	}
 	
 	const removeFromList = (id:number|string) => {
-		dispatch(removeItem(appState.login.token,id));
+		removeItem(token,id);
 		cancel();
 	}
 	
 	const editItem = (item:ShoppingItem) => {
-		dispatch(edit(appState.login.token,item));
+		edit(token,item);
 		cancel();
 	}
 	
-	let items = appState.shopping.list.map((item,index) => {
+	let items = list.map((item,index) => {
 		if(state.removeIndex === index) {
 			return(
 				<RemoveRow key={item.id} removeFromList={removeFromList} cancel={cancel} item={item}/>
