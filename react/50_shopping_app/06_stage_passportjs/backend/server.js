@@ -7,7 +7,7 @@ const userModel = require("./models/user");
 const passport = require("passport");
 const localStrategy = require("passport-local").Strategy;
 const session = require("express-session");
-const mongoStore = require("connect-mongo")(session);
+const mongoStore = require("connect-mongo");
 
 let app = express();
 
@@ -37,10 +37,9 @@ app.use(session({
 	secret:"MyBestSecret",
 	saveUninitialized:false,
 	cookie:{maxAge:1000*60*60},
-	store: new mongoStore({
-		collection:"session",
-		mongooseConnection:mongoose.connection,
-		ttl:60*60
+	store: mongoStore.create({
+		mongoUrl:"mongodb+srv://"+mongo_user+":"+mongo_password+"@"+mongo_url+"/webshopping?retryWrites=true&w=majority",
+		collectionName:"sessions"
 	})
 }));
 
