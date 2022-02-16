@@ -12,7 +12,7 @@ export const getList = (token:string) => {
 				"Content-type":"application/json",
 				"token":token
 			}
-		}
+		})
 		handleFetch(request,"getlist",dispatch,"");
 	}
 }
@@ -27,7 +27,7 @@ export const addItem = (token:string,item:ShoppingItem) => {
 				"token":token
 			},
 			body:JSON.stringify(item)
-		}
+		})
 		handleFetch(request,"additem",dispatch,token);
 	}
 }
@@ -41,7 +41,7 @@ export const removeItem = (token:string,id:number|string) => {
 				"Content-type":"application/json",
 				"token":token
 			}
-		}
+		})
 		handleFetch(request,"removeitem",dispatch,token);
 	}
 }
@@ -56,7 +56,7 @@ export const edit = (token:string,item:ShoppingItem) => {
 				"token":token
 			},
 			body:JSON.stringify(item)
-		}
+		})
 		handleFetch(request,"edititem",dispatch,token);
 	}
 }
@@ -66,7 +66,7 @@ const handleFetch = async (req:Request,act:string,dispatch:ThunkDispatch<any,any
 		type:actionConstants.LOADING
 	}
 	dispatch(loadingAction);
-	const response = await fetch(request);
+	const response = await fetch(req);
 	loadingAction.type = actionConstants.STOP_LOADING;
 	dispatch(loadingAction);
 	if(!response) {
