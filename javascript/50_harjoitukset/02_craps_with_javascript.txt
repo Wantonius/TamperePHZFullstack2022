@@ -27,3 +27,5 @@ before win or lose however long the game takes. You need to save the value of th
 throws. 
 
 Make informative texts during betting. Make a reset button to reset game.
+
+USE ONLY ANCHOR IN HTML AND DO REST BY JAVASCRIPT!
