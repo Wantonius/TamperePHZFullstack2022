@@ -88,6 +88,12 @@ const useAction = () => {
 						action.dispatch({
 							type:ActionConstants.EDIT_ITEM_SUCCESS
 						})
+						changeMode("Add",{
+							id:0,
+							type:"",
+							count:"",
+							price:""
+						})
 						getList(token);
 						return;
 					default:

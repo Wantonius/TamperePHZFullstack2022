@@ -1,7 +1,11 @@
-import {useState} from 'react';
+import {useState,useEffect} from 'react';
 import {View,Text,Pressable,TextInput,StyleSheet} from 'react-native';
-
+import useAction from '../hooks/useAction';
+import useAppState from '../hooks/useAppState';
 const ShoppingForm = (props) => {
+	
+	const {token,mode,editable} = useAppState();
+	const {addItem,edit,changeMode} = useAction();
 	
 	const [state,setState] = useState({
 		type:"",
@@ -9,12 +13,27 @@ const ShoppingForm = (props) => {
 		price:""
 	})
 	
+	useEffect(() => {
+		if(mode === "Edit") {
+			setState({
+				type:editable.type,
+				count:editable.count,
+				price:editable.price				
+			})
+		}
+	},[mode])
+	
 	const addToList = () => {
 		let item = {
 			...state,
 			id:0
 		}
-		props.addToList(item);
+		if(mode === "Edit") {
+			item.id = editable.id
+			edit(token,item);
+		} else {
+			addItem(token,item);
+		}
 		setState({
 			type:"",
 			count:"",
@@ -60,7 +79,7 @@ const ShoppingForm = (props) => {
 			<View style={styles.buttonRow}>
 				<Pressable style={styles.addButton}
 					onPress={addToList}>
-					<Text style={styles.text}>Add</Text>
+					<Text style={styles.text}>{mode}</Text>
 				</Pressable>
 			</View>
 		</View>

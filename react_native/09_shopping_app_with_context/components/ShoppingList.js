@@ -1,6 +1,10 @@
 import {FlatList,View,Pressable,Text,StyleSheet} from 'react-native';
-
+import useAppState from '../hooks/useAppState';
+import useAction from '../hooks/useAction';
 const ShoppingList = (props) => {
+	
+	const {list,token} = useAppState();
+	const {remove,changeMode} = useAction();
 	
 	return(
 		<View style={styles.container}>
@@ -11,7 +15,7 @@ const ShoppingList = (props) => {
 				</Pressable>
 			</View>
 			<View style={styles.listBox}>
-				<FlatList data={props.list}
+				<FlatList data={list}
 							renderItem={({item}) => {
 								return(
 									<View style={styles.row}>
@@ -25,8 +29,15 @@ const ShoppingList = (props) => {
 										Price:{item.price}
 										</Text>
 										<Pressable style={styles.buttonStyle}
-											onPress={() => props.removeFromList(item.id)}>
+											onPress={() => remove(token,item.id)}>
 											<Text style={styles.textStyle}>Remove</Text>
+										</Pressable>
+										<Pressable style={styles.buttonStyle}
+											onPress={() => {
+												changeMode("Edit",item);
+												props.navigation.navigate("Add Item");
+											}}>
+											<Text style={styles.textStyle}>Edit</Text>
 										</Pressable>
 									</View>
 								)

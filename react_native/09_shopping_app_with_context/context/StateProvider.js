@@ -10,7 +10,12 @@ const initialState = {
 	loading:false,
 	error:"",
 	mode:"Add",
-	editable:{}
+	editable:{
+		id:0,
+		type:"",
+		count:"",
+		price:""
+	}
 }
 
 const listReducer = (state,action) => {
@@ -94,7 +99,12 @@ const listReducer = (state,action) => {
 				loading:false,
 				error:"",
 				mode:"Add",
-				editable:{}
+				editable:{
+					id:0,
+					type:"",
+					count:"",
+					price:""
+				}
 			}			
 		default:
 			return state;

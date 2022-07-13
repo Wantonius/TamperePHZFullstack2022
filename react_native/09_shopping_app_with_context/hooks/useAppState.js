@@ -5,4 +5,4 @@ const useAppState = () => {
 	return useContext(AppStateContext);
 }
 
-export const useAppState;
+export default useAppState;
